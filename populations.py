@@ -1,6 +1,6 @@
 from genetics import  crossover, mutation, selection, couple
 import genetics
-from genetics import MAX_GEN
+import global_vars
 from typing import List
 from random import shuffle
 from datetime import datetime
@@ -121,7 +121,7 @@ class Population:
         return new_gen
 
     def evolve(self) -> Chromosome:
-        while self.gen_index < MAX_GEN:
+        while self.gen_index < global_vars.MAX_GEN:
             if self.gen_index % 100 == 0:
                 print (str(self.gen_index) + " generations passed")
                 if self.genocide_ratio > 0 and min(self.generation).value == max(self.generation).value:

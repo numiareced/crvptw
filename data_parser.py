@@ -1,4 +1,5 @@
 import re
+import global_vars
 
 file_header = {
     'default_name': 'R101',
@@ -20,6 +21,12 @@ def read_data(case: str, data_start_row: int = 10) -> list:
     with open(path + case + '.txt', 'r') as data_file:
         for line in data_file:
             i = i + 1
+            if i ==5:
+                str_split = line.split()
+                max_vehicle_num = int(str_split[0])
+                capacity = int(str_split[-1])
+                global_vars.vehicle_capacity = capacity
+                global_vars.max_vehicles_num = max_vehicle_num
             if i == 8:
                 header_str = re.split(r'\s{3,}', line)
                 stripped = header_str[-1].rstrip()

@@ -1,23 +1,7 @@
 from random import randint, shuffle
 from typing import List
 from customers import Customer as Destination
-
-MAX_GEN = 500000
-vehicle_cost_per_dist = 1.0
-vehicle_speed_avg = 1.0
-vehicle_capacity = 200
-vehicles_count_over_deport_hours_preference = 1000
-
-header_mapping = {
-    'header_mapping': {
-        'XCOORD.': 'x_coordinates',
-        'YCOORD.': 'y_coordinates',
-        'DEMAND': 'demand',
-        'READY TIME': 'ready_time',
-        'DUE DATE': 'due_time',
-        'SERVICE TIME': 'service_time',
-    }
-}
+import global_vars
 
 List_Node = List[Destination]
 
@@ -58,11 +42,11 @@ class Chromosome:
 
     @staticmethod
     def get_travel_time(distance: float) -> float:
-        return distance / vehicle_speed_avg
+        return distance / global_vars.vehicle_speed_avg
 
     @staticmethod
     def get_travel_cost(distance: float) -> float:
-        return distance * vehicle_cost_per_dist
+        return distance * global_vars.vehicle_cost_per_dist
 
     def check_time(self, source: int, dest: int, distance: float=None) -> bool:
         if distance is None:
@@ -78,11 +62,11 @@ class Chromosome:
 
     def check_capacity(self, dest: int) -> bool:
         dest_customer = self.get_node(dest)  # type: Node
-        return self.current_load + dest_customer.demand <= vehicle_capacity
+        return self.current_load + dest_customer.demand <= global_vars.vehicle_capacity
 
     @staticmethod
     def get_vehicle_count_preference_cost(vehicles_count: int, deport_working_hours: int) -> float:
-        return vehicles_count_over_deport_hours_preference * vehicles_count + deport_working_hours
+        return global_vars.vehicles_count_over_deport_hours_preference * vehicles_count + deport_working_hours
 
     def move_vehicle(self, source: int, dest: int, distance: float=None):
         if distance is None:
@@ -109,7 +93,6 @@ class Chromosome:
 
     def get_cost(self) -> float:
         self.initial_port()
-
         for source, dest in pair([0] + self.route + [0]):
             if self.check_capacity(dest):
                 if self.check_time(source, dest):
@@ -118,8 +101,9 @@ class Chromosome:
                 else:
                     #send this one to depot and create new vehicle
                     self.move_vehicle(source, 0)
-                    self.add_vehicle()
-                    self.move_vehicle(0, dest)
+                    if (self.vehicles_count < global_vars.max_vehicles_num):
+                        self.add_vehicle()
+                        self.move_vehicle(0, dest)
             else:
                 #no capacity
                 self.move_vehicle(source, 0)
@@ -128,8 +112,9 @@ class Chromosome:
                     self.move_vehicle(0, dest, distance)
                 else:
                     # too late to go to depo, create new vehicle
-                    self.add_vehicle()
-                    self.move_vehicle(0, dest, distance)
+                    if (self.vehicles_count < global_vars.max_vehicles_num):
+                        self.add_vehicle()
+                        self.move_vehicle(0, dest, distance)
 
 
         total_travel_cost = Chromosome.get_travel_cost(self.total_travel_dist)

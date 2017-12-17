@@ -3,6 +3,7 @@ import populations
 from customers import Deport, Customer, DistanceTable
 from data_parser import read_data, write_output
 from datetime import datetime
+import global_vars
 
 import sys
 
@@ -37,7 +38,7 @@ populations.Chromosome = Chromosome
 
 if len(sys.argv) < 2:
     print ("No argument is set, using R101.txt data file as default")
-    filename = 'R101'
+    filename = 'RC205'
 else:
     filename = sys.argv[1]
 process_timer_start = datetime.now()
